@@ -12,7 +12,7 @@ class ShortUrl(models.Model):
     short_code = models.CharField(max_length=10)
     click_count = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    expired_at = models.DateTimeField(blank=True, null = True)
+    expires_at = models.DateTimeField(blank=True, null = True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
