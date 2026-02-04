@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Short URL Created!</h2>
+<p>Original URL: {{ short_url.original_url }}</p>
+<p>Your short link: 
+   <a href="/{{ short_url.short_code }}">
+       {{ request.get_host }}/{{ short_url.short_code }}
+   </a>
+</p>
+<p>Click count: {{ short_url.click_count }}</p>
+<a href="{% url 'shortener:create_short_url' %}">Create another</a>
+{% endblock %}
