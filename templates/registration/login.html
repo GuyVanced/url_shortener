@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Login</h2>
+<form method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+        <p style="color: red;">Invalid username or password</p>
+    {% endif %}
+    <p>
+        <label>Username:</label><br>
+        <input type="text" name="username" required>
+    </p>
+    <p>
+        <label>Password:</label><br>
+        <input type="password" name="password" required>
+    </p>
+    <button type="submit">Login</button>
+</form>
+<p>Don't have an account? <a href="{% url 'signup' %}">Register here</a></p>
+{% endblock %}
