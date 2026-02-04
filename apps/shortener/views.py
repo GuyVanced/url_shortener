@@ -34,7 +34,21 @@ def create_short_url(request):
     return render(request,
                   "shortener/create.html", {"form": form})
 
+def redirect_short_url(request, short_code):
+    """
+    Increments the user's short_url click count by 1
+    Redirects to the user's original url
+    """
+    try:
+        short_url = ShortUrl.objects.get(short_code= short_code)
+    except ShortUrl.DoesNotExist:
+        raise Http404("URL doesn't exist")
+    
+    short_url.click_count += 1
+    short_url.save(update_fields=['click_count'])
 
+    response = HttpResponseRedirect(short_url.original_url)
+    return response
 
 
 
