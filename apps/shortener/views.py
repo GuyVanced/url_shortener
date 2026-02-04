@@ -1,9 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from .forms import ShortUrlForm
 from .services import generate_unique_short_code
 from .models import ShortUrl
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+
 
 def dashboard(request):
     return HttpResponse("Hello Dashboard")
@@ -49,6 +52,17 @@ def redirect_short_url(request, short_code):
 
     response = HttpResponseRedirect(short_url.original_url)
     return response
+
+def signup(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # auto-login after registration
+            return redirect("shortener:dashboard")  # redirect to dashboard/homepage
+    else:
+        form = UserCreationForm()
+    return render(request, "registration/register.html", {"form": form})
 
 
 
