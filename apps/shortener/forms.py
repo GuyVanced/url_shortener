@@ -25,10 +25,10 @@ class ShortUrlForm(forms.ModelForm):
         required=False,
         input_formats=["%Y-%m-%dT%H:%M"],
         widget=forms.DateTimeInput(
-            attrs={"type": "datetime-local"},
-            format="%Y-%m-%dT%H:%M"
+            format="%Y-%m-%dT%H:%M",
+            attrs={"type": "datetime-local"}
         ),
-        label="Expiration date/time",
+        label="Expiration date/time"
     )
 
     class Meta:
@@ -52,20 +52,43 @@ class ShortUrlForm(forms.ModelForm):
             code = None
         return code
 
-    def clean_expires_at(self):
-        expires_at = self.cleaned_data.get("expires_at")
-        set_exp = self.cleaned_data.get("set_expiration")
+    def clean(self):
+        cleaned_data = super().clean()
+
+        set_exp = cleaned_data.get("set_expiration")
+        expires_at = cleaned_data.get("expires_at")
+
         if set_exp:
             if not expires_at:
-                raise forms.ValidationError("You must select a date/time if expiration is enabled.")
-            if expires_at <= timezone.now():
-                raise forms.ValidationError("Expiration date/time must be in the future.")
+                self.add_error(
+                    "expires_at",
+                    "You must select a date/time if expiration is enabled."
+                )
+            elif expires_at <= timezone.now():
+                self.add_error(
+                    "expires_at",
+                    "Expiration date/time must be in the future."
+                )
         else:
-            # Not setting expiration → ignore input
-            expires_at = None
-        return expires_at
+            cleaned_data["expires_at"] = None
+
+        return cleaned_data
 
 class ShortUrlEditForm(forms.ModelForm):
+    expires_at = forms.DateTimeField(
+        required=False,
+        input_formats=["%Y-%m-%dT%H:%M"],
+        widget=forms.DateTimeInput(
+            format="%Y-%m-%dT%H:%M",
+            attrs={"type": "datetime-local"}
+        ),
+        label="Expiration date/time"
+    )
+
     class Meta:
         model = ShortUrl
         fields = ["original_url", "expires_at", "is_active"]
+        labels = {
+            "original_url": "Original URL",
+            "is_active": "Active",
+        }
