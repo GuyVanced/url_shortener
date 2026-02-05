@@ -2,22 +2,6 @@
 
 A feature-rich URL shortener web application built with Django, featuring user authentication, analytics, QR code generation, and a modern responsive UI.
 
-
-## 📋 Table of Contents
-
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Project Structure](#project-structure)
-- [Installation & Setup](#installation--setup)
-- [Usage Guide](#usage-guide)
-- [Core Features Implementation](#core-features-implementation)
-- [Bonus Features Implementation](#bonus-features-implementation)
-- [API Endpoints](#api-endpoints)
-- [Database Schema](#database-schema)
-- [Deployment](#deployment)
-
----
-
 ## ✨ Features
 
 ### Core Requirements ✅
