@@ -1,28 +1,231 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Page Not Found</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 5rem;
+{% extends "base.html" %}
+
+{% block title %}Page Not Found | LinkShort{% endblock %}
+
+{% block content %}
+<style>
+    .error-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem 0;
+        text-align: center;
+    }
+
+    .error-card {
+        background: var(--surface);
+        padding: 4rem 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .error-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .error-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .error-illustration {
+        font-size: 6rem;
+        color: var(--border-color);
+        margin-bottom: 2rem;
+        opacity: 0.5;
+    }
+
+    .error-message {
+        background: var(--background);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-home {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        min-width: 160px;
+    }
+
+    .btn-back {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        min-width: 160px;
+    }
+
+    .helpful-links {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .helpful-links h3 {
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .link-list {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .helpful-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.2s ease;
+    }
+
+    .helpful-link:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .error-container {
+            max-width: 100%;
+            padding: 1rem;
         }
-        a {
-            color: blue;
-            text-decoration: none;
+
+        .error-card {
+            padding: 3rem 1.5rem;
         }
-    </style>
-</head>
-<body>
 
-    <h1>404</h1>
-    <p>Sorry, the page you’re looking for doesn’t exist.</p>
+        .error-code {
+            font-size: 6rem;
+        }
 
-    <p>
-        <a href="/">Go back to home</a>
-    </p>
+        .error-title {
+            font-size: 1.75rem;
+        }
 
-</body>
-</html>
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-home,
+        .btn-back {
+            width: 100%;
+        }
+
+        .link-list {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .error-card {
+            padding: 2rem 1rem;
+        }
+
+        .error-code {
+            font-size: 4rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+        }
+
+        .error-illustration {
+            font-size: 4rem;
+        }
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-card">
+        <div class="error-illustration">
+            <i class="fas fa-unlink"></i>
+        </div>
+        
+        <div class="error-code">404</div>
+        
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-subtitle">
+            Oops! The page you're looking for seems to have wandered off into the digital void.
+        </p>
+
+        <div class="error-message">
+            <i class="fas fa-info-circle"></i>
+            The URL you entered might be incorrect, or the page may have been moved or deleted.
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% if user.is_authenticated %}{% url 'shortener:dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-primary btn-home">
+                <i class="fas fa-home"></i>
+                Go to {% if user.is_authenticated %}Dashboard{% else %}Home{% endif %}
+            </a>
+            <button onclick="history.back()" class="btn btn-secondary btn-back">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </button>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="helpful-links">
+            <h3>Quick Links</h3>
+            <div class="link-list">
+                <a href="{% url 'shortener:dashboard' %}" class="helpful-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="{% url 'shortener:create_short_url' %}" class="helpful-link">
+                    <i class="fas fa-plus"></i>
+                    Create Short URL
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="helpful-links">
+            <h3>Get Started</h3>
+            <div class="link-list">
+                <a href="{% url 'login' %}" class="helpful-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In
+                </a>
+                <a href="{% url 'signup' %}" class="helpful-link">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

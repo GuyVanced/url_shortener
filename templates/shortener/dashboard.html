@@ -1,144 +1,417 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard | URL Shortener{% endblock %}
+{% block title %}Dashboard | LinkShort{% endblock %}
 
 {% block content %}
 <style>
-    .dashboard-container {
+    .dashboard-header {
         display: flex;
-        min-height: 70vh;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
 
-    .sidebar {
-        width: 220px;
-        border-right: 1px solid #ddd;
-        padding: 1rem;
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
     }
 
-    .sidebar h3 {
-        margin-bottom: 1rem;
-        font-size: 1.1rem;
+    .dashboard-title i {
+        color: var(--primary-color);
     }
 
-    .sidebar a {
-        display: block;
-        margin-bottom: 0.75rem;
-        color: #333;
-        font-weight: bold;
+    .dashboard-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
 
-    .sidebar a:hover {
-        text-decoration: underline;
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
-    .main-content {
-        flex: 1;
+    .stat-card {
+        background: var(--surface);
         padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+        border-left: 4px solid var(--primary-color);
     }
 
-    table {
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .urls-section {
+        background: var(--surface);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .urls-table-container {
+        overflow-x: auto;
+    }
+
+    .urls-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 1rem;
     }
 
-    th, td {
-        border-bottom: 1px solid #ddd;
-        padding: 0.75rem;
+    .urls-table th {
+        background: var(--background);
+        padding: 1rem;
         text-align: left;
+        font-weight: 600;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--border-color);
+        white-space: nowrap;
     }
 
-    th {
-        background-color: #f5f5f5;
+    .urls-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
     }
 
-    .empty-state {
-        margin-top: 2rem;
-        color: #666;
+    .urls-table tr:hover {
+        background: var(--background);
     }
 
-    .btn {
-        padding: 0.5rem 0.75rem;
-        border: 1px solid #333;
-        background: #fff;
-        cursor: pointer;
+    .short-url-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .short-url-link:hover {
+        background: rgba(79, 70, 229, 0.1);
+        transform: translateX(2px);
+    }
+
+    .original-url {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--text-secondary);
+    }
+
+    .click-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: var(--success-color);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .date-text {
+        color: var(--text-secondary);
         font-size: 0.9rem;
     }
 
-    .btn:hover {
-        background: #f0f0f0;
+    .expires-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .expires-never {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+    }
+
+    .expires-date {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning-color);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .action-btn-edit {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .action-btn-edit:hover {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .action-btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger-color);
+    }
+
+    .action-btn-delete:hover {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--border-color);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .empty-state p {
+        margin-bottom: 2rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .dashboard-header {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .dashboard-actions {
+            justify-content: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .urls-table th,
+        .urls-table td {
+            padding: 0.75rem 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .original-url {
+            max-width: 150px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard-title {
+            font-size: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+        }
+
+        .urls-table {
+            font-size: 0.8rem;
+        }
+
+        .original-url {
+            max-width: 100px;
+        }
     }
 </style>
 
-<div class="dashboard-container">
+<div class="dashboard-header">
+    <h1 class="dashboard-title">
+        <i class="fas fa-tachometer-alt"></i>
+        Dashboard
+    </h1>
+    <div class="dashboard-actions">
+        <a href="{% url 'shortener:create_short_url' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Create Short URL
+        </a>
+    </div>
+</div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <h3>Menu</h3>
-        <a href="{% url 'shortener:dashboard' %}">Dashboard</a>
-        <a href="{% url 'shortener:create_short_url' %}">Create Short URL</a>
+<!-- Statistics Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number">{{ urls|length }}</div>
+        <div class="stat-label">Total URLs</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">
+            {% for url in urls %}{{ url.click_count }}{% if not forloop.last %}+{% endif %}{% empty %}0{% endfor %}
+        </div>
+        <div class="stat-label">Total Clicks</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">
+            {% now "Y-m-d" as today %}
+            {% for url in urls %}{% if url.created_at|date:"Y-m-d" == today %}1{% endif %}{% endfor %}
+        </div>
+        <div class="stat-label">Created Today</div>
+    </div>
+</div>
 
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="btn" type="submit">Logout</button>
-        </form>
-    </aside>
+<!-- URLs Section -->
+<div class="urls-section">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="fas fa-link"></i>
+            My Short URLs
+        </h2>
+    </div>
 
-    <!-- Main Content -->
-    <section class="main-content">
-        <h2>My Short URLs</h2>
-
-        {% if urls %}
-            <table>
+    {% if urls %}
+        <div class="urls-table-container">
+            <table class="urls-table">
                 <thead>
                     <tr>
-                        <th>Short URL</th>
-                        <th>Original URL</th>
-                        <th>Clicks</th>
-                        <th>Created At</th>
-                        <th>Expires At</th>
-                        <th>Actions</th>
+                        <th><i class="fas fa-link"></i> Short URL</th>
+                        <th><i class="fas fa-external-link-alt"></i> Original URL</th>
+                        <th><i class="fas fa-mouse-pointer"></i> Clicks</th>
+                        <th><i class="fas fa-calendar-plus"></i> Created</th>
+                        <th><i class="fas fa-clock"></i> Expires</th>
+                        <th><i class="fas fa-cog"></i> Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for url in urls %}
                         <tr>
                             <td>
-                                <a href="/{{ url.short_code }}" target="_blank">
+                                <a href="/{{ url.short_code }}" target="_blank" class="short-url-link">
+                                    <i class="fas fa-external-link-alt"></i>
                                     {{ request.get_host }}/{{ url.short_code }}
                                 </a>
                             </td>
-                            <td>{{ url.original_url }}</td>
-                            <td>{{ url.click_count }}</td>
-                            <td>{{ url.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <div class="original-url" title="{{ url.original_url }}">
+                                    {{ url.original_url }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="click-count">
+                                    <i class="fas fa-mouse-pointer"></i>
+                                    {{ url.click_count }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="date-text">{{ url.created_at|date:"M d, Y" }}</span>
+                                <br>
+                                <small class="text-muted">{{ url.created_at|date:"H:i" }}</small>
+                            </td>
                             <td>
                                 {% if url.expires_at %}
-                                    {{ url.expires_at|date:"Y-m-d H:i" }}
+                                    <span class="expires-badge expires-date">
+                                        {{ url.expires_at|date:"M d, Y" }}
+                                    </span>
                                 {% else %}
-                                    Never
+                                    <span class="expires-badge expires-never">
+                                        <i class="fas fa-infinity"></i>
+                                        Never
+                                    </span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a href="{% url 'shortener:delete_short_url' url.id %}">
-                                    Delete
-                                </a>
-                                <a href="{% url 'shortener:edit_url' url.pk %}">
-                                    Edit
-                                </a>
+                                <div class="action-buttons">
+                                    <a href="{% url 'shortener:edit_url' url.pk %}" class="action-btn action-btn-edit">
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'shortener:delete_short_url' url.id %}" class="action-btn action-btn-delete">
+                                        <i class="fas fa-trash"></i>
+                                        Delete
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% else %}
-            <div class="empty-state">
-                <p>You haven't created any short URLs yet.</p>
-                <a href="{% url 'shortener:create_short_url' %}">
-                    <button class="btn">Create your first short URL</button>
-                </a>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-link"></i>
             </div>
-        {% endif %}
-    </section>
-
+            <h3>No Short URLs Yet</h3>
+            <p>You haven't created any short URLs yet. Get started by creating your first one!</p>
+            <a href="{% url 'shortener:create_short_url' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Create Your First Short URL
+            </a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
