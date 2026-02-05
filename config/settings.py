@@ -30,7 +30,9 @@ DEBUG = config("DEBUG", default=False, cast=bool)
 
 
 ALLOWED_HOSTS = ["urlshortener-production-4598.up.railway.app",]
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://urlshortener-production-4598.up.railway.app"
+]
 
 # Application definition
 
