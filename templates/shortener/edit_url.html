@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit URL{% endblock %}
+
+{% block content %}
+<h2>Edit Short URL</h2>
+
+<p>
+    <strong>Short code:</strong>
+    {{ short_url.short_code }}
+</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">Save Changes</button>
+    <a href="{% url 'shortener:dashboard' %}">Cancel</a>
+</form>
+{% endblock %}
