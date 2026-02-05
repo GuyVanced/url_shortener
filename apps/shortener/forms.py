@@ -21,19 +21,22 @@ class ShortUrlForm(forms.ModelForm):
         label= "Set expiration time",
         help_text = "Check to set expiration date/time"
     )
+    expires_at = forms.DateTimeField(
+        required=False,
+        input_formats=["%Y-%m-%dT%H:%M"],
+        widget=forms.DateTimeInput(
+            attrs={"type": "datetime-local"},
+            format="%Y-%m-%dT%H:%M"
+        ),
+        label="Expiration date/time",
+    )
 
     class Meta:
         model = ShortUrl
         fields = ["original_url", "expires_at"]
-        widgets = {
-            "expires_at": forms.DateTimeInput(
-                attrs={"type": "datetime-local"},
-                format="%Y-%m-%dT%H:%M"  # Must match datetime-local format
-            ),
-        }
+        
         labels = {
             "original_url": "Original URL",
-            "expires_at" : "Expiration date/time"
         }
 
     def clean_custom_short_code(self):

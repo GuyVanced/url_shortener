@@ -41,6 +41,8 @@ def create_short_url(request):
                 expires_at = expires_at
 
             )
+            print(request.POST)
+            print(form.cleaned_data)
             return render(request,
                           "shortener/create_success.html",
                           {"short_url": short_url})
