@@ -1,14 +1,12 @@
-
 {% extends "base.html" %}
-
 {% block title %}Edit URL{% endblock %}
 
 {% block content %}
 <h2>Edit Short URL</h2>
 
 <p>
-    <strong>Short code:</strong>
-    {{ short_url.short_code }}
+    <strong>Short URL:</strong><br>
+    <code>{{ request.get_host }}/{{ short_url.short_code }}</code>
 </p>
 
 <form method="post">
@@ -19,4 +17,8 @@
     <button type="submit">Save Changes</button>
     <a href="{% url 'shortener:dashboard' %}">Cancel</a>
 </form>
+
+<p style="margin-top:1rem; color:#666; font-size:0.9rem;">
+    Note: Short code cannot be changed after creation.
+</p>
 {% endblock %}

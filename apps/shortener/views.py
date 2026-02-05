@@ -87,18 +87,34 @@ def delete_short_url(request, pk):
     )
 
 @login_required
-def edit_url(request,pk):
-    short_url = get_object_or_404(ShortUrl, pk = pk, user= request.user)
+@login_required
+def edit_url(request, pk):
+    short_url = get_object_or_404(
+        ShortUrl,
+        pk=pk,
+        user=request.user
+    )
 
     if request.method == "POST":
-        form = ShortUrlEditForm(request.POST, instance = short_url)
+        form = ShortUrlEditForm(
+            request.POST,
+            instance=short_url
+        )
         if form.is_valid():
             form.save()
             return redirect("shortener:dashboard")
     else:
-            form = ShortUrlForm(instance = short_url)
-        
-    return render(request, "shortener/edit_url.html", {"form": form, "short_url": short_url})
+        form = ShortUrlEditForm(instance=short_url)
+
+    return render(
+        request,
+        "shortener/edit_url.html",
+        {
+            "form": form,
+            "short_url": short_url
+        }
+    )
+
 
 
 
