@@ -1,21 +1,244 @@
 {% extends "base.html" %}
 
+{% block title %}Login | LinkShort{% endblock %}
+
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-    {% csrf_token %}
-    {% if form.errors %}
-        <p style="color: red;">Invalid username or password</p>
-    {% endif %}
-    <p>
-        <label>Username:</label><br>
-        <input type="text" name="username" required>
-    </p>
-    <p>
-        <label>Password:</label><br>
-        <input type="password" name="password" required>
-    </p>
-    <button type="submit">Login</button>
-</form>
-<p>Don't have an account? <a href="{% url 'signup' %}">Register here</a></p>
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .auth-card {
+        background: var(--surface);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .auth-title i {
+        color: var(--primary-color);
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .auth-form {
+        margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .auth-input {
+        width: 100%;
+        padding: 0.75rem 0.75rem 0.75rem 3rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .auth-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .auth-input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--danger-color);
+        padding: 0.75rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .auth-button {
+        width: 100%;
+        padding: 0.875rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .auth-button:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .auth-footer {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .auth-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .auth-link:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    .welcome-message {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .auth-container {
+            max-width: 100%;
+            padding: 1rem;
+        }
+
+        .auth-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 1.5rem 1rem;
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+        }
+
+        .auth-input {
+            padding: 0.75rem;
+            padding-left: 3rem;
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">
+                <i class="fas fa-sign-in-alt"></i>
+                Welcome Back
+            </h1>
+            <p class="auth-subtitle">Sign in to your LinkShort account</p>
+        </div>
+
+        <div class="welcome-message">
+            <i class="fas fa-info-circle"></i>
+            Access your dashboard to manage and track your short URLs
+        </div>
+
+        {% if form.errors %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Invalid username or password. Please try again.</span>
+            </div>
+        {% endif %}
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" 
+                       name="username" 
+                       class="auth-input" 
+                       placeholder="Enter your username"
+                       required
+                       autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" 
+                       name="password" 
+                       class="auth-input" 
+                       placeholder="Enter your password"
+                       required
+                       autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="auth-button">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p class="text-muted">
+                Don't have an account? 
+                <a href="{% url 'signup' %}" class="auth-link">
+                    <i class="fas fa-user-plus"></i>
+                    Create one here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

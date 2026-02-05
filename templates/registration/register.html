@@ -1,11 +1,299 @@
 {% extends "base.html" %}
 
+{% block title %}Register | LinkShort{% endblock %}
+
 {% block content %}
-<h2>Register</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Register</button>
-</form>
-<p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+<style>
+    .auth-container {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 2rem 0;
+    }
+
+    .auth-card {
+        background: var(--surface);
+        padding: 2.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .auth-title i {
+        color: var(--primary-color);
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .auth-form {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-field {
+        margin-bottom: 1.5rem;
+    }
+
+    .field-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .auth-input {
+        width: 100%;
+        padding: 0.75rem 0.75rem 0.75rem 3rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .auth-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .auth-input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .field-help {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        line-height: 1.4;
+    }
+
+    .field-errors {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--danger-color);
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--border-radius);
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .field-errors ul {
+        margin: 0;
+        padding-left: 1rem;
+    }
+
+    .field-errors li {
+        margin-bottom: 0.25rem;
+    }
+
+    .field-errors li:last-child {
+        margin-bottom: 0;
+    }
+
+    .auth-button {
+        width: 100%;
+        padding: 0.875rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .auth-button:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .auth-footer {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .auth-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .auth-link:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    .welcome-message {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .auth-container {
+            max-width: 100%;
+            padding: 1rem;
+        }
+
+        .auth-card {
+            padding: 2rem 1.5rem;
+        }
+
+        .auth-title {
+            font-size: 1.75rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 1.5rem 1rem;
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+        }
+
+        .auth-input {
+            padding: 0.75rem;
+            padding-left: 3rem;
+        }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1 class="auth-title">
+                <i class="fas fa-user-plus"></i>
+                Create Account
+            </h1>
+            <p class="auth-subtitle">Join LinkShort to start shortening URLs</p>
+        </div>
+
+        <div class="welcome-message">
+            <i class="fas fa-rocket"></i>
+            Get started with your free account and create unlimited short URLs
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}" class="field-label">
+                        {{ field.label }}
+                    </label>
+                    
+                    <div class="input-group">
+                        {% if field.name == 'username' %}
+                            <i class="fas fa-user input-icon"></i>
+                        {% elif field.name == 'email' %}
+                            <i class="fas fa-envelope input-icon"></i>
+                        {% elif 'password' in field.name %}
+                            <i class="fas fa-lock input-icon"></i>
+                        {% else %}
+                            <i class="fas fa-edit input-icon"></i>
+                        {% endif %}
+                        
+                        <input type="{{ field.field.widget.input_type|default:'text' }}" 
+                               name="{{ field.name }}" 
+                               id="{{ field.id_for_label }}"
+                               class="auth-input"
+                               {% if field.value %}value="{{ field.value }}"{% endif %}
+                               {% if field.field.required %}required{% endif %}
+                               {% if field.name == 'username' %}
+                                   placeholder="Choose a username"
+                                   autocomplete="username"
+                               {% elif field.name == 'email' %}
+                                   placeholder="Enter your email address"
+                                   autocomplete="email"
+                               {% elif field.name == 'password1' %}
+                                   placeholder="Create a strong password"
+                                   autocomplete="new-password"
+                               {% elif field.name == 'password2' %}
+                                   placeholder="Confirm your password"
+                                   autocomplete="new-password"
+                               {% endif %}>
+                    </div>
+
+                    {% if field.help_text %}
+                        <div class="field-help">{{ field.help_text }}</div>
+                    {% endif %}
+                    
+                    {% if field.errors %}
+                        <div class="field-errors">
+                            <ul>
+                                {% for error in field.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="auth-button">
+                <i class="fas fa-user-plus"></i>
+                Create Account
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p class="text-muted">
+                Already have an account? 
+                <a href="{% url 'login' %}" class="auth-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign in here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

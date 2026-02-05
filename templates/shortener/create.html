@@ -1,90 +1,485 @@
 {% extends "base.html" %}
 
-{% block title %}Create Short URL{% endblock %}
+{% block title %}Create Short URL | LinkShort{% endblock %}
 
 {% block content %}
-<h2>Create Short URL</h2>
+<style>
+    .create-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
 
-<form method="post">
-    {% csrf_token %}
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
 
-    <!-- Original URL -->
-    <p>
-        {{ form.original_url.label_tag }}<br>
-        {{ form.original_url }}
-        {% if form.original_url.errors %}
-            <br><span style="color:red">{{ form.original_url.errors }}</span>
-        {% endif %}
-    </p>
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
 
-    <!-- Custom Short Code Checkbox -->
-    <p>
-        {{ form.use_custom_code }} {{ form.use_custom_code.label_tag }}
-        {% if form.use_custom_code.help_text %}
-            <br><small>{{ form.use_custom_code.help_text }}</small>
-        {% endif %}
-        {% if form.use_custom_code.errors %}
-            <br><span style="color:red">{{ form.use_custom_code.errors }}</span>
-        {% endif %}
-    </p>
+    .page-title i {
+        color: var(--primary-color);
+    }
 
-    <!-- Custom Short Code Text Input (conditionally visible) -->
-    <p id="custom_code_field" style="display:none;">
-        {{ form.custom_short_code.label_tag }}<br>
-        {{ form.custom_short_code }}
-        {% if form.custom_short_code.errors %}
-            <br><span style="color:red">{{ form.custom_short_code.errors }}</span>
-        {% endif %}
-    </p>
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
 
-    <!-- Expiration Checkbox -->
-    <p>
-        {{ form.set_expiration }} {{ form.set_expiration.label_tag }}
-        {% if form.set_expiration.help_text %}
-            <br><small>{{ form.set_expiration.help_text }}</small>
-        {% endif %}
-        {% if form.set_expiration.errors %}
-            <br><span style="color:red">{{ form.set_expiration.errors }}</span>
-        {% endif %}
-    </p>
+    .create-form {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+    }
 
-    <!-- Expiration Date Input (conditionally visible) -->
-    <p id="expires_at_field" style="display:none;">
-        {{ form.expires_at.label_tag }}<br>
-        {{ form.expires_at }}
-        {% if form.expires_at.errors %}
-            <br><span style="color:red">{{ form.expires_at.errors }}</span>
-        {% endif %}
-    </p>
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
 
-    <button type="submit">Create</button>
-</form>
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
 
-<!-- JS to toggle visibility -->
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+    }
+
+    .url-input-group {
+        position: relative;
+    }
+
+    .url-input {
+        padding-left: 3rem;
+        font-size: 1rem;
+        height: 3rem;
+    }
+
+    .url-input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .checkbox-group {
+        background: var(--background);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .checkbox-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .checkbox-input {
+        margin-top: 0.125rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        accent-color: var(--primary-color);
+    }
+
+    .checkbox-content {
+        flex: 1;
+    }
+
+    .checkbox-label {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .checkbox-help {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .conditional-field {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(79, 70, 229, 0.05);
+        border: 1px solid rgba(79, 70, 229, 0.2);
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+    }
+
+    .conditional-field.hidden {
+        display: none;
+    }
+
+    .custom-code-input {
+        position: relative;
+    }
+
+    .domain-prefix {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        pointer-events: none;
+    }
+
+    .custom-code-field {
+        padding-left: 8rem;
+    }
+
+    .datetime-input {
+        position: relative;
+    }
+
+    .datetime-input input {
+        padding-right: 3rem;
+    }
+
+    .datetime-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        pointer-events: none;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-create {
+        padding: 0.75rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        min-width: 150px;
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--danger-color);
+        padding: 0.75rem;
+        border-radius: var(--border-radius);
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: var(--primary-color);
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .create-container {
+            max-width: 100%;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .create-form {
+            padding: 1.5rem;
+            margin: 0 0.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-create {
+            width: 100%;
+        }
+
+        .domain-prefix {
+            font-size: 0.8rem;
+            left: 0.75rem;
+        }
+
+        .custom-code-field {
+            padding-left: 7rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-title {
+            font-size: 1.75rem;
+        }
+
+        .create-form {
+            padding: 1rem;
+        }
+
+        .domain-prefix {
+            position: relative;
+            display: block;
+            margin-bottom: 0.5rem;
+            left: 0;
+            top: 0;
+            transform: none;
+        }
+
+        .custom-code-field {
+            padding-left: 0.75rem;
+        }
+    }
+</style>
+
+<div class="create-container">
+    <a href="{% url 'shortener:dashboard' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+    </a>
+
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-plus-circle"></i>
+            Create Short URL
+        </h1>
+        <p class="page-subtitle">Transform your long URLs into short, shareable links</p>
+    </div>
+
+    <form method="post" class="create-form">
+        {% csrf_token %}
+
+        <!-- URL Input Section -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-link"></i>
+                URL to Shorten
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.original_url.id_for_label }}" class="form-label">
+                    {{ form.original_url.label }}
+                </label>
+                <div class="url-input-group">
+                    <i class="fas fa-globe url-input-icon"></i>
+                    <input type="{{ form.original_url.field.widget.input_type }}" 
+                           name="{{ form.original_url.name }}" 
+                           id="{{ form.original_url.id_for_label }}"
+                           class="form-input url-input"
+                           {% if form.original_url.value %}value="{{ form.original_url.value }}"{% endif %}
+                           placeholder="Enter the URL you want to shorten"
+                           required>
+                </div>
+                {% if form.original_url.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {{ form.original_url.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Customization Options -->
+        <div class="form-section">
+            <div class="section-title">
+                <i class="fas fa-cog"></i>
+                Customization Options
+            </div>
+
+            <div class="checkbox-group">
+                <!-- Custom Short Code -->
+                <div class="checkbox-item">
+                    <input type="checkbox" 
+                           name="{{ form.use_custom_code.name }}" 
+                           id="{{ form.use_custom_code.id_for_label }}"
+                           class="checkbox-input"
+                           {% if form.use_custom_code.value %}checked{% endif %}>
+                    <div class="checkbox-content">
+                        <label for="{{ form.use_custom_code.id_for_label }}" class="checkbox-label">
+                            {{ form.use_custom_code.label }}
+                        </label>
+                        {% if form.use_custom_code.help_text %}
+                            <div class="checkbox-help">{{ form.use_custom_code.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if form.use_custom_code.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {{ form.use_custom_code.errors.0 }}
+                    </div>
+                {% endif %}
+
+                <!-- Custom Code Input Field -->
+                <div id="custom_code_field" class="conditional-field hidden">
+                    <label for="{{ form.custom_short_code.id_for_label }}" class="form-label">
+                        {{ form.custom_short_code.label }}
+                    </label>
+                    <div class="custom-code-input">
+                        <span class="domain-prefix">{{ request.get_host }}/</span>
+                        <input type="{{ form.custom_short_code.field.widget.input_type }}" 
+                               name="{{ form.custom_short_code.name }}" 
+                               id="{{ form.custom_short_code.id_for_label }}"
+                               class="form-input custom-code-field"
+                               {% if form.custom_short_code.value %}value="{{ form.custom_short_code.value }}"{% endif %}
+                               placeholder="my-custom-link">
+                    </div>
+                    {% if form.custom_short_code.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            {{ form.custom_short_code.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Set Expiration -->
+                <div class="checkbox-item">
+                    <input type="checkbox" 
+                           name="{{ form.set_expiration.name }}" 
+                           id="{{ form.set_expiration.id_for_label }}"
+                           class="checkbox-input"
+                           {% if form.set_expiration.value %}checked{% endif %}>
+                    <div class="checkbox-content">
+                        <label for="{{ form.set_expiration.id_for_label }}" class="checkbox-label">
+                            {{ form.set_expiration.label }}
+                        </label>
+                        {% if form.set_expiration.help_text %}
+                            <div class="checkbox-help">{{ form.set_expiration.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if form.set_expiration.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {{ form.set_expiration.errors.0 }}
+                    </div>
+                {% endif %}
+
+                <!-- Expiration Date Input Field -->
+                <div id="expires_at_field" class="conditional-field hidden">
+                    <label for="{{ form.expires_at.id_for_label }}" class="form-label">
+                        {{ form.expires_at.label }}
+                    </label>
+                    <div class="datetime-input">
+                        <input type="{{ form.expires_at.field.widget.input_type }}" 
+                               name="{{ form.expires_at.name }}" 
+                               id="{{ form.expires_at.id_for_label }}"
+                               class="form-input"
+                               {% if form.expires_at.value %}value="{{ form.expires_at.value|date:'Y-m-d\TH:i' }}"{% endif %}>
+                        <i class="fas fa-calendar-alt datetime-icon"></i>
+                    </div>
+                    {% if form.expires_at.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            {{ form.expires_at.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-create">
+                <i class="fas fa-magic"></i>
+                Create Short URL
+            </button>
+            <a href="{% url 'shortener:dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript for conditional fields -->
 <script>
     // Custom Short Code toggle
     const useCustomCheckbox = document.getElementById("id_use_custom_code");
     const customCodeField = document.getElementById("custom_code_field");
 
-    useCustomCheckbox.addEventListener("change", function() {
-        customCodeField.style.display = this.checked ? "block" : "none";
-    });
-
-    if (useCustomCheckbox.checked) {
-        customCodeField.style.display = "block";
+    function toggleCustomCode() {
+        if (useCustomCheckbox.checked) {
+            customCodeField.classList.remove("hidden");
+        } else {
+            customCodeField.classList.add("hidden");
+        }
     }
+
+    useCustomCheckbox.addEventListener("change", toggleCustomCode);
+    toggleCustomCode(); // Initialize on page load
 
     // Expiration toggle
     const setExpCheckbox = document.getElementById("id_set_expiration");
     const expiresField = document.getElementById("expires_at_field");
 
-    setExpCheckbox.addEventListener("change", function() {
-        expiresField.style.display = this.checked ? "block" : "none";
-    });
-
-    if (setExpCheckbox.checked) {
-        expiresField.style.display = "block";
+    function toggleExpiration() {
+        if (setExpCheckbox.checked) {
+            expiresField.classList.remove("hidden");
+        } else {
+            expiresField.classList.add("hidden");
+        }
     }
+
+    setExpCheckbox.addEventListener("change", toggleExpiration);
+    toggleExpiration(); // Initialize on page load
+
+    // Add smooth transitions
+    document.addEventListener('DOMContentLoaded', function() {
+        const conditionalFields = document.querySelectorAll('.conditional-field');
+        conditionalFields.forEach(field => {
+            field.style.transition = 'all 0.3s ease';
+        });
+    });
 </script>
 
 {% endblock %}

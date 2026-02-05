@@ -1,28 +1,121 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Page Not Found</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 5rem;
+{% extends "base.html" %}
+
+{% block title %}Page Not Found | LinkShort{% endblock %}
+
+{% block content %}
+<style>
+    .error-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 4rem 0;
+        text-align: center;
+    }
+
+    .error-card {
+        background: var(--surface);
+        padding: 4rem 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 900;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(79, 70, 229, 0.1);
+    }
+
+    .error-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+    }
+
+    .error-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .error-illustration {
+        font-size: 6rem;
+        color: var(--border-color);
+        margin-bottom: 2rem;
+        opacity: 0.5;
+    }
+
+    .error-message {
+        background: var(--background);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .error-container {
+            max-width: 100%;
+            padding: 2rem 1rem;
         }
-        a {
-            color: blue;
-            text-decoration: none;
+
+        .error-card {
+            padding: 3rem 1.5rem;
         }
-    </style>
-</head>
-<body>
 
-    <h1>404</h1>
-    <p>Sorry, the page you’re looking for doesn’t exist.</p>
+        .error-code {
+            font-size: 6rem;
+        }
 
-    <p>
-        <a href="/">Go back to home</a>
-    </p>
+        .error-title {
+            font-size: 1.75rem;
+        }
+    }
 
-</body>
-</html>
+    @media (max-width: 480px) {
+        .error-card {
+            padding: 2rem 1rem;
+        }
+
+        .error-code {
+            font-size: 4rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+        }
+
+        .error-illustration {
+            font-size: 4rem;
+        }
+    }
+</style>
+
+<div class="error-container">
+    <div class="error-card">
+        <div class="error-illustration">
+            <i class="fas fa-unlink"></i>
+        </div>
+        
+        <div class="error-code">404</div>
+        
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-subtitle">
+            The link you followed may be broken or the page may have been removed.
+        </p>
+
+        <div class="error-message">
+            <i class="fas fa-info-circle"></i>
+            This short URL doesn't exist or may have been deactivated by its owner.
+        </div>
+    </div>
+</div>
+
+{% endblock %}
