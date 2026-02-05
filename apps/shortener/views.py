@@ -1,18 +1,27 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from .forms import ShortUrlForm
+from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpResponseForbidden
+from .forms import ShortUrlForm, ShortUrlEditForm
 from .services import generate_unique_short_code
 from .models import ShortUrl
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 
-
+@login_required
 def dashboard(request):
-    return HttpResponse("Hello Dashboard")
+    urls = ShortUrl.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "shortener/dashboard.html", {"urls": urls})
 
-
-
+def signup(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # auto-login after registration
+            return redirect("shortener:dashboard")  # redirect to dashboard/homepage
+    else:
+        form = UserCreationForm()
+    return render(request, "registration/register.html", {"form": form})
 
 @login_required
 def create_short_url(request):
@@ -45,7 +54,7 @@ def redirect_short_url(request, short_code):
     try:
         short_url = ShortUrl.objects.get(short_code= short_code)
     except ShortUrl.DoesNotExist:
-        raise Http404("URL doesn't exist")
+        return render(request,"404.html", status = 404)
     
     short_url.click_count += 1
     short_url.save(update_fields=['click_count'])
@@ -53,16 +62,29 @@ def redirect_short_url(request, short_code):
     response = HttpResponseRedirect(short_url.original_url)
     return response
 
-def signup(request):
+@login_required
+def delete_short_url(request, pk):
+    try:
+        short_url = ShortUrl.objects.get(pk = pk)
+    except ShortUrl.DoesNotExist:
+        return render(request,"404.html", status = 404)
+    
+    if short_url.user != request.user:
+        return HttpResponseForbidden("You are not allowed here!")
+    
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # auto-login after registration
-            return redirect("shortener:dashboard")  # redirect to dashboard/homepage
-    else:
-        form = UserCreationForm()
-    return render(request, "registration/register.html", {"form": form})
+        short_url.delete()
+        return redirect("shortener:dashboard")
+    
+    return render(
+        request,"shortener/confirm_delete.html", {"short_url":short_url}
+    )
+
+
+
+
+
+
 
 
 
