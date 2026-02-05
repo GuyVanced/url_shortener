@@ -29,13 +29,17 @@ def create_short_url(request):
         form = ShortUrlForm(request.POST)
         if form.is_valid():
             original_url = form.cleaned_data["original_url"]
+            custom_code = form.cleaned_data["custom_short_code"]
+            expires_at = form.cleaned_data["expires_at"]
 
-            short_code = generate_unique_short_code()
+            short_code = custom_code if custom_code else generate_unique_short_code()
 
             short_url = ShortUrl.objects.create(
                 user = request.user,
                 original_url = original_url,
-                short_code = short_code
+                short_code = short_code,
+                expires_at = expires_at
+
             )
             return render(request,
                           "shortener/create_success.html",
@@ -52,7 +56,7 @@ def redirect_short_url(request, short_code):
     Redirects to the user's original url
     """
     try:
-        short_url = ShortUrl.objects.get(short_code= short_code)
+        short_url = ShortUrl.objects.get(short_code= short_code, is_active=True)
     except ShortUrl.DoesNotExist:
         return render(request,"404.html", status = 404)
     
