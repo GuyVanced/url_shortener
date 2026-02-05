@@ -1,9 +1,90 @@
 {% extends "base.html" %}
+
+{% block title %}Create Short URL{% endblock %}
+
 {% block content %}
 <h2>Create Short URL</h2>
+
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <!-- Original URL -->
+    <p>
+        {{ form.original_url.label_tag }}<br>
+        {{ form.original_url }}
+        {% if form.original_url.errors %}
+            <br><span style="color:red">{{ form.original_url.errors }}</span>
+        {% endif %}
+    </p>
+
+    <!-- Custom Short Code Checkbox -->
+    <p>
+        {{ form.use_custom_code }} {{ form.use_custom_code.label_tag }}
+        {% if form.use_custom_code.help_text %}
+            <br><small>{{ form.use_custom_code.help_text }}</small>
+        {% endif %}
+        {% if form.use_custom_code.errors %}
+            <br><span style="color:red">{{ form.use_custom_code.errors }}</span>
+        {% endif %}
+    </p>
+
+    <!-- Custom Short Code Text Input (conditionally visible) -->
+    <p id="custom_code_field" style="display:none;">
+        {{ form.custom_short_code.label_tag }}<br>
+        {{ form.custom_short_code }}
+        {% if form.custom_short_code.errors %}
+            <br><span style="color:red">{{ form.custom_short_code.errors }}</span>
+        {% endif %}
+    </p>
+
+    <!-- Expiration Checkbox -->
+    <p>
+        {{ form.set_expiration }} {{ form.set_expiration.label_tag }}
+        {% if form.set_expiration.help_text %}
+            <br><small>{{ form.set_expiration.help_text }}</small>
+        {% endif %}
+        {% if form.set_expiration.errors %}
+            <br><span style="color:red">{{ form.set_expiration.errors }}</span>
+        {% endif %}
+    </p>
+
+    <!-- Expiration Date Input (conditionally visible) -->
+    <p id="expires_at_field" style="display:none;">
+        {{ form.expires_at.label_tag }}<br>
+        {{ form.expires_at }}
+        {% if form.expires_at.errors %}
+            <br><span style="color:red">{{ form.expires_at.errors }}</span>
+        {% endif %}
+    </p>
+
     <button type="submit">Create</button>
 </form>
+
+<!-- JS to toggle visibility -->
+<script>
+    // Custom Short Code toggle
+    const useCustomCheckbox = document.getElementById("id_use_custom_code");
+    const customCodeField = document.getElementById("custom_code_field");
+
+    useCustomCheckbox.addEventListener("change", function() {
+        customCodeField.style.display = this.checked ? "block" : "none";
+    });
+
+    if (useCustomCheckbox.checked) {
+        customCodeField.style.display = "block";
+    }
+
+    // Expiration toggle
+    const setExpCheckbox = document.getElementById("id_set_expiration");
+    const expiresField = document.getElementById("expires_at_field");
+
+    setExpCheckbox.addEventListener("change", function() {
+        expiresField.style.display = this.checked ? "block" : "none";
+    });
+
+    if (setExpCheckbox.checked) {
+        expiresField.style.display = "block";
+    }
+</script>
+
 {% endblock %}
