@@ -4,6 +4,7 @@ from . import views
 app_name = "shortener"
 
 urlpatterns = [
+    path("", views.dashboard, name="home"),
     path("dashboard/", views.dashboard, name= "dashboard"),
     path("create/", views.create_short_url, name= "create_short_url"),
     path("delete/<int:pk>", views.delete_short_url, name="delete_short_url"),
