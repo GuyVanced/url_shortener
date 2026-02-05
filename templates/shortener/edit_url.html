@@ -107,6 +107,42 @@
         gap: 0.5rem;
     }
 
+    .form-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        background: var(--background);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+    }
+
+    .checkbox-input {
+        margin-top: 0.125rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        accent-color: var(--primary-color);
+        cursor: pointer;
+    }
+
+    .checkbox-content {
+        flex: 1;
+    }
+
+    .checkbox-label {
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+        display: block;
+        cursor: pointer;
+    }
+
+    .checkbox-help {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
     .form-actions {
         display: flex;
         gap: 1rem;
@@ -221,40 +257,59 @@
 
             {% for field in form %}
                 <div class="form-group">
-                    <label for="{{ field.id_for_label }}" class="form-label">
-                        {{ field.label }}
-                    </label>
-                    
-                    {% if field.field.widget.input_type == 'url' %}
-                        <div class="url-input-group">
-                            <i class="fas fa-globe url-input-icon"></i>
-                            <input type="{{ field.field.widget.input_type }}" 
+                    {% if field.field.widget.input_type == 'checkbox' %}
+                        <!-- Checkbox field styling -->
+                        <div class="form-checkbox">
+                            <input type="checkbox" 
                                    name="{{ field.name }}" 
                                    id="{{ field.id_for_label }}"
-                                   class="form-input url-input"
-                                   {% if field.value %}value="{{ field.value }}"{% endif %}
-                                   {% if field.field.required %}required{% endif %}>
+                                   class="checkbox-input"
+                                   {% if field.value %}checked{% endif %}>
+                            <div class="checkbox-content">
+                                <label for="{{ field.id_for_label }}" class="checkbox-label">
+                                    {{ field.label }}
+                                </label>
+                                {% if field.help_text %}
+                                    <div class="checkbox-help">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
                         </div>
-                    {% elif field.field.widget.input_type == 'datetime-local' %}
-                        <div class="datetime-input">
-                            <input type="{{ field.field.widget.input_type }}" 
+                    {% else %}
+                        <label for="{{ field.id_for_label }}" class="form-label">
+                            {{ field.label }}
+                        </label>
+                        
+                        {% if field.field.widget.input_type == 'url' %}
+                            <div class="url-input-group">
+                                <i class="fas fa-globe url-input-icon"></i>
+                                <input type="{{ field.field.widget.input_type }}" 
+                                       name="{{ field.name }}" 
+                                       id="{{ field.id_for_label }}"
+                                       class="form-input url-input"
+                                       {% if field.value %}value="{{ field.value }}"{% endif %}
+                                       {% if field.field.required %}required{% endif %}>
+                            </div>
+                        {% elif field.field.widget.input_type == 'datetime-local' %}
+                            <div class="datetime-input">
+                                <input type="{{ field.field.widget.input_type }}" 
+                                       name="{{ field.name }}" 
+                                       id="{{ field.id_for_label }}"
+                                       class="form-input"
+                                       {% if field.value %}value="{{ field.value|date:'Y-m-d\TH:i' }}"{% endif %}>
+                                <i class="fas fa-calendar-alt datetime-icon"></i>
+                            </div>
+                        {% else %}
+                            <input type="{{ field.field.widget.input_type|default:'text' }}" 
                                    name="{{ field.name }}" 
                                    id="{{ field.id_for_label }}"
                                    class="form-input"
-                                   {% if field.value %}value="{{ field.value|date:'Y-m-d\TH:i' }}"{% endif %}>
-                            <i class="fas fa-calendar-alt datetime-icon"></i>
-                        </div>
-                    {% else %}
-                        <input type="{{ field.field.widget.input_type|default:'text' }}" 
-                               name="{{ field.name }}" 
-                               id="{{ field.id_for_label }}"
-                               class="form-input"
-                               {% if field.value %}value="{{ field.value }}"{% endif %}
-                               {% if field.field.required %}required{% endif %}>
-                    {% endif %}
+                                   {% if field.value %}value="{{ field.value }}"{% endif %}
+                                   {% if field.field.required %}required{% endif %}>
+                        {% endif %}
 
-                    {% if field.help_text %}
-                        <div class="form-help">{{ field.help_text }}</div>
+                        {% if field.help_text %}
+                            <div class="form-help">{{ field.help_text }}</div>
+                        {% endif %}
                     {% endif %}
                     
                     {% if field.errors %}

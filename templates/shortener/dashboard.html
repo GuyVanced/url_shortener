@@ -46,6 +46,28 @@
         box-shadow: var(--shadow);
         text-align: center;
         border-left: 4px solid var(--primary-color);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 60px;
+        height: 60px;
+        background: rgba(79, 70, 229, 0.1);
+        border-radius: 0 0 0 60px;
+    }
+
+    .stat-icon {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        opacity: 0.7;
     }
 
     .stat-number {
@@ -150,6 +172,46 @@
         font-weight: 600;
     }
 
+    .qr-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .qr-generated {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+    }
+
+    .qr-not-generated {
+        background: rgba(107, 114, 128, 0.1);
+        color: var(--text-secondary);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+    }
+
+    .status-inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger-color);
+    }
+
     .date-text {
         color: var(--text-secondary);
         font-size: 0.9rem;
@@ -208,6 +270,26 @@
 
     .action-btn-delete:hover {
         background: var(--danger-color);
+        color: white;
+    }
+
+    .action-btn-qr {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+    }
+
+    .action-btn-qr:hover {
+        background: var(--success-color);
+        color: white;
+    }
+
+    .action-btn-generate-qr {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning-color);
+    }
+
+    .action-btn-generate-qr:hover {
+        background: var(--warning-color);
         color: white;
     }
 
@@ -306,20 +388,18 @@
 <!-- Statistics Cards -->
 <div class="stats-grid">
     <div class="stat-card">
+        <i class="fas fa-link stat-icon"></i>
         <div class="stat-number">{{ urls|length }}</div>
         <div class="stat-label">Total URLs</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number">
-            {% for url in urls %}{{ url.click_count }}{% if not forloop.last %}+{% endif %}{% empty %}0{% endfor %}
-        </div>
+        <i class="fas fa-mouse-pointer stat-icon"></i>
+        <div class="stat-number">{{ total_clicks }}</div>
         <div class="stat-label">Total Clicks</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number">
-            {% now "Y-m-d" as today %}
-            {% for url in urls %}{% if url.created_at|date:"Y-m-d" == today %}1{% endif %}{% endfor %}
-        </div>
+        <i class="fas fa-calendar-plus stat-icon"></i>
+        <div class="stat-number">{{ created_today }}</div>
         <div class="stat-label">Created Today</div>
     </div>
 </div>
@@ -341,9 +421,10 @@
                         <th><i class="fas fa-link"></i> Short URL</th>
                         <th><i class="fas fa-external-link-alt"></i> Original URL</th>
                         <th><i class="fas fa-mouse-pointer"></i> Clicks</th>
+                        <th><i class="fas fa-toggle-on"></i> Status</th>
+                        <th><i class="fas fa-cog"></i> Actions</th>
                         <th><i class="fas fa-calendar-plus"></i> Created</th>
                         <th><i class="fas fa-clock"></i> Expires</th>
-                        <th><i class="fas fa-cog"></i> Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -367,6 +448,42 @@
                                 </span>
                             </td>
                             <td>
+                                {% if url.is_active %}
+                                    <span class="status-badge status-active">
+                                        <i class="fas fa-check-circle"></i>
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-inactive">
+                                        <i class="fas fa-ban"></i>
+                                        Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    {% if url.has_qr_code %}
+                                        <a href="{% url 'shortener:view_qr_code' url.pk %}" class="action-btn action-btn-qr">
+                                            <i class="fas fa-qrcode"></i>
+                                            View QR
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'shortener:generate_qr_code' url.pk %}" class="action-btn action-btn-generate-qr">
+                                            <i class="fas fa-qrcode"></i>
+                                            Generate QR
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'shortener:edit_url' url.pk %}" class="action-btn action-btn-edit">
+                                        <i class="fas fa-edit"></i>
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'shortener:delete_short_url' url.id %}" class="action-btn action-btn-delete">
+                                        <i class="fas fa-trash"></i>
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                            <td>
                                 <span class="date-text">{{ url.created_at|date:"M d, Y" }}</span>
                                 <br>
                                 <small class="text-muted">{{ url.created_at|date:"H:i" }}</small>
@@ -382,18 +499,6 @@
                                         Never
                                     </span>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="{% url 'shortener:edit_url' url.pk %}" class="action-btn action-btn-edit">
-                                        <i class="fas fa-edit"></i>
-                                        Edit
-                                    </a>
-                                    <a href="{% url 'shortener:delete_short_url' url.id %}" class="action-btn action-btn-delete">
-                                        <i class="fas fa-trash"></i>
-                                        Delete
-                                    </a>
-                                </div>
                             </td>
                         </tr>
                     {% endfor %}
