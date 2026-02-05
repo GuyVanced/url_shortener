@@ -3,14 +3,36 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpRespons
 from .forms import ShortUrlForm, ShortUrlEditForm
 from .services import generate_unique_short_code
 from .models import ShortUrl
+from .qr_service import generate_qr_code, regenerate_qr_code
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from django.contrib import messages
 
 @login_required
 def dashboard(request):
+    from django.db.models import Sum, Count, Q
+    from django.utils import timezone
+    
     urls = ShortUrl.objects.filter(user=request.user).order_by("-created_at")
-    return render(request, "shortener/dashboard.html", {"urls": urls})
+    
+    # Calculate analytics using database aggregation for better performance
+    today = timezone.now().date()
+    
+    stats = urls.aggregate(
+        total_clicks=Sum('click_count'),
+        urls_with_qr=Count('id', filter=Q(qr_code_image__isnull=False)),
+        created_today=Count('id', filter=Q(created_at__date=today))
+    )
+    
+    context = {
+        "urls": urls,
+        "total_clicks": stats['total_clicks'] or 0,
+        "created_today": stats['created_today'],
+        "urls_with_qr": stats['urls_with_qr'],
+    }
+    
+    return render(request, "shortener/dashboard.html", context)
 
 def signup(request):
     if request.method == "POST":
@@ -114,6 +136,91 @@ def edit_url(request, pk):
             "short_url": short_url
         }
     )
+
+
+@login_required
+def generate_qr_code_view(request, pk):
+    """Generate QR code for a short URL"""
+    short_url = get_object_or_404(
+        ShortUrl,
+        pk=pk,
+        user=request.user
+    )
+    
+    # Generate QR code
+    success = generate_qr_code(short_url, request)
+    
+    if success:
+        messages.success(request, "QR code generated successfully!")
+        return redirect("shortener:view_qr_code", pk=pk)
+    else:
+        messages.error(request, "Failed to generate QR code. Please try again.")
+        return redirect("shortener:dashboard")
+
+
+@login_required
+def view_qr_code(request, pk):
+    """Display QR code for a short URL"""
+    short_url = get_object_or_404(
+        ShortUrl,
+        pk=pk,
+        user=request.user
+    )
+    
+    if not short_url.has_qr_code:
+        messages.warning(request, "QR code has not been generated yet.")
+        return redirect("shortener:dashboard")
+    
+    return render(
+        request,
+        "shortener/qr_code_view.html",
+        {"short_url": short_url}
+    )
+
+
+@login_required
+def download_qr_code(request, pk):
+    """Download QR code image"""
+    short_url = get_object_or_404(
+        ShortUrl,
+        pk=pk,
+        user=request.user
+    )
+    
+    if not short_url.has_qr_code:
+        messages.error(request, "QR code has not been generated yet.")
+        return redirect("shortener:dashboard")
+    
+    try:
+        response = HttpResponse(
+            short_url.qr_code_image.read(),
+            content_type='image/png'
+        )
+        response['Content-Disposition'] = f'attachment; filename="qr_code_{short_url.short_code}.png"'
+        return response
+    except Exception as e:
+        messages.error(request, "Failed to download QR code.")
+        return redirect("shortener:view_qr_code", pk=pk)
+
+
+@login_required
+def regenerate_qr_code_view(request, pk):
+    """Regenerate QR code for a short URL"""
+    short_url = get_object_or_404(
+        ShortUrl,
+        pk=pk,
+        user=request.user
+    )
+    
+    # Regenerate QR code
+    success = regenerate_qr_code(short_url, request)
+    
+    if success:
+        messages.success(request, "QR code regenerated successfully!")
+        return redirect("shortener:view_qr_code", pk=pk)
+    else:
+        messages.error(request, "Failed to regenerate QR code. Please try again.")
+        return redirect("shortener:dashboard")
 
 
 

@@ -84,6 +84,13 @@ class ShortUrlEditForm(forms.ModelForm):
         ),
         label="Expiration date/time"
     )
+    
+    is_active = forms.BooleanField(
+        required=False,
+        initial=True,
+        label="Active",
+        help_text="Uncheck to deactivate this short URL"
+    )
 
     class Meta:
         model = ShortUrl

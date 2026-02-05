@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+
+{% block title %}QR Code | LinkShort{% endblock %}
+
+{% block content %}
+<style>
+    .qr-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .qr-card {
+        background: var(--surface);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+        text-align: center;
+    }
+
+    .qr-header {
+        margin-bottom: 2rem;
+    }
+
+    .qr-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .qr-title i {
+        color: var(--primary-color);
+    }
+
+    .qr-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+    }
+
+    .qr-image-container {
+        background: var(--background);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+        display: inline-block;
+    }
+
+    .qr-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        box-shadow: var(--shadow);
+    }
+
+    .url-info {
+        background: var(--background);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: var(--surface);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+
+    .info-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 120px;
+    }
+
+    .info-label i {
+        color: var(--primary-color);
+    }
+
+    .info-value {
+        flex: 1;
+        margin-left: 1rem;
+    }
+
+    .short-url-text {
+        color: var(--primary-color);
+        font-weight: 600;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+
+    .original-url-text {
+        color: var(--text-secondary);
+        word-break: break-all;
+        font-size: 0.95rem;
+    }
+
+    .qr-stats {
+        display: flex;
+        justify-content: space-around;
+        background: var(--background);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    .btn-download {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        min-width: 150px;
+    }
+
+    .btn-regenerate {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        min-width: 150px;
+        background: var(--warning-color);
+        color: white;
+    }
+
+    .btn-regenerate:hover {
+        background: #d97706;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: var(--primary-color);
+    }
+
+    .qr-info-box {
+        background: rgba(79, 70, 229, 0.1);
+        border: 1px solid rgba(79, 70, 229, 0.3);
+        color: var(--primary-color);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 2rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .qr-container {
+            max-width: 100%;
+            margin: 0 0.5rem;
+        }
+
+        .qr-card {
+            padding: 1.5rem;
+        }
+
+        .qr-title {
+            font-size: 1.75rem;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+
+        .info-label {
+            min-width: auto;
+            justify-content: center;
+        }
+
+        .info-value {
+            margin-left: 0;
+            text-align: center;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-download,
+        .btn-regenerate {
+            width: 100%;
+        }
+
+        .qr-stats {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .qr-title {
+            font-size: 1.5rem;
+        }
+
+        .qr-image-container {
+            padding: 1rem;
+        }
+
+        .qr-card {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="qr-container">
+    <a href="{% url 'shortener:dashboard' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Dashboard
+    </a>
+
+    <div class="qr-card">
+        <div class="qr-header">
+            <h1 class="qr-title">
+                <i class="fas fa-qrcode"></i>
+                QR Code
+            </h1>
+            <p class="qr-subtitle">Scan to access your short URL</p>
+        </div>
+
+        <div class="qr-info-box">
+            <i class="fas fa-info-circle"></i>
+            <span>This QR code links directly to your short URL. Anyone who scans it will be redirected to your original URL.</span>
+        </div>
+
+        <div class="qr-image-container">
+            <img src="{{ short_url.qr_code_image.url }}" alt="QR Code for {{ short_url.short_code }}" class="qr-image">
+        </div>
+
+        <div class="url-info">
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-link"></i>
+                    Short URL
+                </div>
+                <div class="info-value">
+                    <div class="short-url-text">{{ request.get_host }}/{{ short_url.short_code }}</div>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-external-link-alt"></i>
+                    Original URL
+                </div>
+                <div class="info-value">
+                    <div class="original-url-text">{{ short_url.original_url }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="qr-stats">
+            <div class="stat-item">
+                <div class="stat-number">{{ short_url.click_count }}</div>
+                <div class="stat-label">Total Clicks</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ short_url.qr_code_generated_at|date:"M d" }}</div>
+                <div class="stat-label">QR Generated</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ short_url.created_at|date:"M d" }}</div>
+                <div class="stat-label">URL Created</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'shortener:download_qr_code' short_url.pk %}" class="btn btn-primary btn-download">
+                <i class="fas fa-download"></i>
+                Download QR Code
+            </a>
+            <a href="{% url 'shortener:regenerate_qr_code' short_url.pk %}" class="btn btn-regenerate">
+                <i class="fas fa-sync-alt"></i>
+                Regenerate QR
+            </a>
+            <a href="{% url 'shortener:dashboard' %}" class="btn btn-secondary">
+                <i class="fas fa-tachometer-alt"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

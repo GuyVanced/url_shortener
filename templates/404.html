@@ -7,7 +7,7 @@
     .error-container {
         max-width: 600px;
         margin: 0 auto;
-        padding: 2rem 0;
+        padding: 4rem 0;
         text-align: center;
     }
 
@@ -54,71 +54,16 @@
         padding: 1.5rem;
         border-radius: var(--border-radius);
         border: 1px solid var(--border-color);
-        margin-bottom: 2rem;
         color: var(--text-secondary);
         font-size: 0.95rem;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .btn-home {
-        padding: 0.75rem 2rem;
-        font-size: 1rem;
-        font-weight: 600;
-        min-width: 160px;
-    }
-
-    .btn-back {
-        padding: 0.75rem 2rem;
-        font-size: 1rem;
-        font-weight: 600;
-        min-width: 160px;
-    }
-
-    .helpful-links {
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 1px solid var(--border-color);
-    }
-
-    .helpful-links h3 {
-        font-size: 1.1rem;
-        color: var(--text-primary);
-        margin-bottom: 1rem;
-    }
-
-    .link-list {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .helpful-link {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: color 0.2s ease;
-    }
-
-    .helpful-link:hover {
-        color: var(--primary-hover);
-        text-decoration: underline;
+        line-height: 1.6;
     }
 
     /* Mobile Responsiveness */
     @media (max-width: 768px) {
         .error-container {
             max-width: 100%;
-            padding: 1rem;
+            padding: 2rem 1rem;
         }
 
         .error-card {
@@ -131,20 +76,6 @@
 
         .error-title {
             font-size: 1.75rem;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .btn-home,
-        .btn-back {
-            width: 100%;
-        }
-
-        .link-list {
-            flex-direction: column;
-            gap: 1rem;
         }
     }
 
@@ -177,54 +108,13 @@
         
         <h1 class="error-title">Page Not Found</h1>
         <p class="error-subtitle">
-            Oops! The page you're looking for seems to have wandered off into the digital void.
+            The link you followed may be broken or the page may have been removed.
         </p>
 
         <div class="error-message">
             <i class="fas fa-info-circle"></i>
-            The URL you entered might be incorrect, or the page may have been moved or deleted.
+            This short URL doesn't exist or may have been deactivated by its owner.
         </div>
-
-        <div class="action-buttons">
-            <a href="{% if user.is_authenticated %}{% url 'shortener:dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="btn btn-primary btn-home">
-                <i class="fas fa-home"></i>
-                Go to {% if user.is_authenticated %}Dashboard{% else %}Home{% endif %}
-            </a>
-            <button onclick="history.back()" class="btn btn-secondary btn-back">
-                <i class="fas fa-arrow-left"></i>
-                Go Back
-            </button>
-        </div>
-
-        {% if user.is_authenticated %}
-        <div class="helpful-links">
-            <h3>Quick Links</h3>
-            <div class="link-list">
-                <a href="{% url 'shortener:dashboard' %}" class="helpful-link">
-                    <i class="fas fa-tachometer-alt"></i>
-                    Dashboard
-                </a>
-                <a href="{% url 'shortener:create_short_url' %}" class="helpful-link">
-                    <i class="fas fa-plus"></i>
-                    Create Short URL
-                </a>
-            </div>
-        </div>
-        {% else %}
-        <div class="helpful-links">
-            <h3>Get Started</h3>
-            <div class="link-list">
-                <a href="{% url 'login' %}" class="helpful-link">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Sign In
-                </a>
-                <a href="{% url 'signup' %}" class="helpful-link">
-                    <i class="fas fa-user-plus"></i>
-                    Create Account
-                </a>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 
