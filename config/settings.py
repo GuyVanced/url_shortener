@@ -29,7 +29,7 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 
-ALLOWED_HOSTS = ["https://urlshortener-production-4598.up.railway.app/",]
+ALLOWED_HOSTS = ["urlshortener-production-4598.up.railway.app",]
 
 
 # Application definition
